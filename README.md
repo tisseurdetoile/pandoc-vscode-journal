@@ -8,6 +8,8 @@ en utilisant pandoc on génére un weblog en passant par le script `./generate.s
 
 Ce dépot n'est là qu'a titre indicatif pour inspiration seulement
 
+Une démonstration est disponnible [ici](https://tisseurdetoile.github.io/pandoc-vscode-journal/)
+
 ## Installation sous osx
 
 - cloner le dépot git clone `git clone git@github.com:tisseurdetoile/pandoc-vscode-journal.git`
