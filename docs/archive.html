@@ -1,0 +1,74 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <!-- START NAV -->
+    <nav>
+      <ol>
+        <li><a href="/">Retour</a></li>
+        <li><a href="./archive.html">Archive</a></li>
+      </ol>
+    </nav>
+    <hr />
+    <!-- END NAV -->
+    <div id="app">
+      <h3>Liste des billets</h3>
+
+      <section>
+        <br />
+        <ul>
+          <li v-if="info.length > 0" v-for="(value, name, index) in info">
+            <span v-if="value.sub === undefined">
+              Billet en date du {{ value.displayday }} / {{ value.displaymonth
+              }} / {{ value.year }} -
+              <a :href="value.fileDestination">à lire ici</a>
+            </span>
+            <span v-if="value.sub !== undefined">
+              Billet en date du {{ value.displayday }} / {{ value.displaymonth
+              }} / {{ value.year }} -
+              <a :href="value.fileDestination">{{ value.sub }}</a>
+            </span>
+          </li>
+          <li v-if="info.length === 0">Chargement en cours</li>
+        </ul>
+      </section>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+    <script>
+      var app = new Vue({
+        el: '#app',
+        mounted() {
+          fetch('./index.json')
+            .then((response) => {
+              return response.json()
+            })
+            .then((data) => {
+              this.info = data.articles
+                .map((obj) => ({
+                  ...obj,
+                  ts: new Date(obj.year, obj.month - 1, obj.day, 12, 0, 0),
+                }))
+                .sort((a, b) => b.ts - a.ts)
+            })
+            .catch((err) => {
+              console.log('unable to fetch data')
+            })
+        },
+        data: function () {
+          return {
+            info: [],
+          }
+        },
+      })
+    </script>
+  </body>
+</html>
