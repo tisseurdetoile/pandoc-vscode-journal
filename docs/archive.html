@@ -8,6 +8,7 @@
     />
     <link rel="stylesheet" href="style.css" />
   </head>
+
   <body>
     <!-- START NAV -->
     <nav>
@@ -22,9 +23,9 @@
       <h3>Liste des billets</h3>
 
       <section>
-        <br />
+        <span v-if="info.length === 0">Chargement en cours</span>
         <ul>
-          <li v-if="info.length > 0" v-for="(value, name, index) in info">
+          <li v-if="info.length > 0" v-for="value in paginate">
             <span v-if="value.sub === undefined">
               Billet en date du {{ value.displayday }} / {{ value.displaymonth
               }} / {{ value.year }} -
@@ -36,8 +37,36 @@
               <a :href="value.fileDestination">{{ value.sub }}</a>
             </span>
           </li>
-          <li v-if="info.length === 0">Chargement en cours</li>
         </ul>
+
+        <center>
+          <kbd
+            style="padding: 0.5em; margin: 0.5em;"
+            v-for="pageNumber in totalPages"
+            v-if="Math.abs(pageNumber - currentPage) < 3 || pageNumber == totalPages || pageNumber == 1"
+          >
+            <span
+              v-if="pageNumber == 1 && Math.abs(pageNumber - currentPage) > 3"
+            >
+              <<</span
+            >
+
+            <span v-if="currentPage === pageNumber">(</span>
+            <a
+              v-bind:key="pageNumber"
+              href="#"
+              @click="setPage(pageNumber)"
+              :class="{current: currentPage === pageNumber, last: (pageNumber == totalPages && Math.abs(pageNumber - currentPage) > 3), first:(pageNumber == 1 && Math.abs(pageNumber - currentPage) > 3)}"
+            >
+              {{ pageNumber }}</a
+            >
+            <span v-if="currentPage === pageNumber">)</span>
+            <span
+              v-if="pageNumber == totalPages && Math.abs(pageNumber - currentPage) > 3"
+              >>></span
+            >
+          </kbd>
+        </center>
       </section>
     </div>
 
@@ -58,6 +87,8 @@
                   ts: new Date(obj.year, obj.month - 1, obj.day, 12, 0, 0),
                 }))
                 .sort((a, b) => b.ts - a.ts)
+
+              this.currentPage = 1
             })
             .catch((err) => {
               console.log('unable to fetch data')
@@ -66,7 +97,31 @@
         data: function () {
           return {
             info: [],
+            currentPage: 0,
+            itemsPerPage: 15,
+            resultCount: 0,
           }
+        },
+        computed: {
+          totalPages: function () {
+            return Math.ceil(this.resultCount / this.itemsPerPage)
+          },
+          paginate: function () {
+            if (!this.info || this.info.length != this.info.length) {
+              return
+            }
+            this.resultCount = this.info.length
+            if (this.currentPage >= this.totalPages) {
+              this.currentPage = this.totalPages
+            }
+            var index = this.currentPage * this.itemsPerPage - this.itemsPerPage
+            return this.info.slice(index, index + this.itemsPerPage)
+          },
+        },
+        methods: {
+          setPage: function (pageNumber) {
+            this.currentPage = pageNumber
+          },
         },
       })
     </script>
